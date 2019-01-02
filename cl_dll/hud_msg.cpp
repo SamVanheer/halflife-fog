@@ -26,6 +26,11 @@ extern IParticleMan *g_pParticleMan;
 
 #define MAX_CLIENTS 32
 
+vec3_t FogColor;
+float g_iFogColor[ 3 ];
+float g_iStartDist;
+float g_iEndDist;
+
 #if !defined( _TFC )
 extern BEAM *pBeam;
 extern BEAM *pBeam2;
@@ -56,6 +61,9 @@ int CHud :: MsgFunc_ResetHUD(const char *pszName, int iSize, void *pbuf )
 
 	// reset concussion effect
 	m_iConcussionEffect = 0;
+
+	g_iStartDist = 0.0;
+	g_iEndDist = 0.0;
 
 	return 1;
 }
@@ -137,5 +145,18 @@ int CHud :: MsgFunc_Concuss( const char *pszName, int iSize, void *pbuf )
 		this->m_StatusIcons.EnableIcon("dmg_concuss",255,160,0);
 	else
 		this->m_StatusIcons.DisableIcon("dmg_concuss");
+	return 1;
+}
+
+int CHud::MsgFunc_SetFog( const char *pszName, int iSize, void *pbuf )
+{
+
+	BEGIN_READ( pbuf, iSize );
+	FogColor.x = TransformColor( READ_SHORT() );
+	FogColor.y = TransformColor( READ_SHORT() );
+	FogColor.z = TransformColor( READ_SHORT() );
+	g_iStartDist = READ_SHORT();
+	g_iEndDist = READ_SHORT();
+
 	return 1;
 }

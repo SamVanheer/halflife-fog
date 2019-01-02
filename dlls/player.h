@@ -145,6 +145,7 @@ public:
 	float				m_rgflSuitNoRepeatTime[CSUITNOREPEAT];	// how long to wait before allowing repeat
 	int					m_lastDamageAmount;		// Last damage taken
 	float				m_tbdPrev;				// Time-based damage timer
+	BOOL				m_fUpdateFog;			// True when fog update msg needs to be sent
 
 	float				m_flgeigerRange;		// range to nearest radiation source
 	float				m_flgeigerDelay;		// delay per update of range msg to client

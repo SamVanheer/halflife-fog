@@ -44,6 +44,7 @@ extern DLL_GLOBAL BOOL		g_fGameOver;
 extern DLL_GLOBAL	BOOL	g_fDrawLines;
 int gEvilImpulse101;
 extern DLL_GLOBAL int		g_iSkillLevel, gDisplayTitle;
+extern DLL_GLOBAL int		gLevelLoaded;
 
 
 BOOL gInitHUD = TRUE;
@@ -184,6 +185,7 @@ int gmsgSetFOV = 0;
 int gmsgShowMenu = 0;
 int gmsgGeigerRange = 0;
 int gmsgTeamNames = 0;
+int gmsgSetFog = 0;
 
 int gmsgStatusText = 0;
 int gmsgStatusValue = 0; 
@@ -232,6 +234,7 @@ void LinkUserMessages( void )
 	gmsgFade = REG_USER_MSG("ScreenFade", sizeof(ScreenFade));
 	gmsgAmmoX = REG_USER_MSG("AmmoX", 2);
 	gmsgTeamNames = REG_USER_MSG( "TeamNames", -1 );
+	gmsgSetFog = REG_USER_MSG( "SetFog", -1 );
 
 	gmsgStatusText = REG_USER_MSG("StatusText", -1);
 	gmsgStatusValue = REG_USER_MSG("StatusValue", 3); 
@@ -1346,6 +1349,7 @@ void CBasePlayer::PlayerDeathThink(void)
 
 	pev->button = 0;
 	m_iRespawnFrames = 0;
+	m_fUpdateFog = TRUE;
 
 	//ALERT(at_console, "Respawn\n");
 
@@ -3063,6 +3067,9 @@ int CBasePlayer::Restore( CRestore &restore )
 	m_flNextAttack = UTIL_WeaponTimeBase();
 #endif
 
+	//Force the fog to update next frame
+	m_fUpdateFog = TRUE;
+
 	return status;
 }
 
@@ -4177,6 +4184,20 @@ void CBasePlayer :: UpdateClientData( void )
 	{
 		UpdateStatusBar();
 		m_flNextSBarUpdateTime = gpGlobals->time + 0.2;
+	}
+
+	//Update fog after respawn (also sets the fog after connect in multiplayer)
+	if( m_fUpdateFog )
+	{
+		m_fUpdateFog = FALSE;
+		CClientFog::CheckFogForClient( edict() );
+	}
+
+	//Enable fog after level load (singleplayer only)
+	if( gLevelLoaded )
+	{
+		CClientFog::CheckFogForClient( edict() );
+		gLevelLoaded = FALSE;
 	}
 }
 
